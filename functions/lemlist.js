@@ -1,7 +1,8 @@
+// netlify/functions/lemlist.js
 const ALLOWED_ORIGIN = 'https://dashboard-internal.privacy-safe.io';
 const LEMLIST_BASE = 'https://api.lemlist.com/api';
 
-export async function handler(event) {
+exports.handler = async (event) => {
   const origin = event.headers.origin || '';
   const allowOrigin = origin === ALLOWED_ORIGIN ? origin : 'null';
 
@@ -22,7 +23,6 @@ export async function handler(event) {
     return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
-  // Reconstruit le chemin cible (après /api/lemlist/)
   const path = event.path.replace(/^\/api\/lemlist\/?/, '');
   const qs = event.rawQuery ? `?${event.rawQuery}` : '';
   const upstreamUrl = `${LEMLIST_BASE}/${path}${qs}`;
@@ -37,7 +37,6 @@ export async function handler(event) {
   }
 
   const auth = 'Basic ' + Buffer.from(':' + apiKey).toString('base64');
-
   try {
     const upstream = await fetch(upstreamUrl, {
       headers: {
@@ -64,4 +63,4 @@ export async function handler(event) {
       body: JSON.stringify({ error: e?.message || 'Bad gateway' }),
     };
   }
-}
+};
